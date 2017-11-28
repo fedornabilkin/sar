@@ -1,0 +1,12 @@
+{
+  "name": "Simple Ajax Requests",
+  "version": "0.0.1",
+  "main": "sar.js",
+  "ignore": [
+    ".gitignore"
+  ],
+  "dependencies": {
+    "jquery": ">=2.2.4",
+    "bootstrap": ">=3.0.3"
+  }
+}
