@@ -1,9 +1,10 @@
 {
   "name": "simple-ajax-requests",
   "version": "0.0.1",
-  "main": "sar.js",
+  "main": "dist/sar.js",
   "ignore": [
-    ".gitignore"
+    ".gitignore",
+    "node_modules"
   ],
   "dependencies": {
     "bootstrap": ">=3.0.3"

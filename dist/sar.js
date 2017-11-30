@@ -50,10 +50,10 @@ function AjaxResponse(element, data) {
     this.form = {};
     this.resp = {};
     this.cfg = {
-        'progress': {css: ''},
-        'response': {css:'response', statusCss:'text-success'},
-        'modal': {id:'sar-simple', innerSelector:'.modal-body'},
-        'tooltip': {removeTime:2000}
+        progress: {css: '', hidden: false},
+        response: {css:'response', statusCss:'text-success', hidden: false},
+        modal: {id:'sar-simple', innerSelector:'.modal-body'},
+        tooltip: {removeTime:2000}
     };
 }
 
@@ -140,13 +140,10 @@ AjaxResponse.prototype.aPrepare = function(){
     return true;
 };
 
-AjaxResponse.prototype.defaultPrepare = function(){
-    return true;
-};
-
 
 
 AjaxResponse.prototype.loader = function(){
+
     var str = '<div class="progress">';
     str += '<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">';
     str += '<span class="sr-only">Loading</span>';
@@ -158,15 +155,24 @@ AjaxResponse.prototype.loader = function(){
         this.resp.text = str;
         window[this.handler].prototype.showModal.apply(this);
     }else if(this.element[0].localName === 'form'){
-        $(this.element).append(str);
+        this.element.append(str);
         this.progress = $(this.element).find('.progress');
-        $(this.element).find('.'+this.cfg.response.css).remove();
+        this.element.find('.'+this.cfg.response.css).remove();
+        if(this.cfg.progress.hidden === true){
+            this.progress.removeAttr('class');
+        }
+    }else{
+        var html = this.element.html();
+        this.element.html('<span class="fa fa-cog fa-spin"></span>').attr({'original-content':html});
     }
 
 
 };
 
 AjaxResponse.prototype.unloader = function(){
+    if(this.cfg.response.hidden === true){
+        // this.resp.text = '';
+    }
 
     if(!this.resp.text && !this.resp.errors){
         this.resp.errors = ['Unknown error'];
@@ -181,13 +187,17 @@ AjaxResponse.prototype.unloader = function(){
             .removeAttr('class')
             .addClass(this.cfg.response.statusCss +' '+ this.cfg.response.css);
     }else{
-        this.element.after('<span class="tooltip"></span>');
-        var opts = {'title':this.resp.text, 'container':'body', 'placement':'top auto', 'viewport':'body'};
-        var span = $(this.element).next('.tooltip');
-        span.tooltip(opts).tooltip('show');
-        setTimeout(function(){
-            span.tooltip('hide').remove();
-        }, this.cfg.tooltip.removeTime);
+        this.element.html(this.element.attr('original-content'));
+
+        if(this.cfg.response.hidden === false) {
+            this.element.after('<span class="tooltip"></span>');
+            var opts = {'title': this.resp.text, 'container': 'body', 'placement': 'top auto', 'viewport': 'body'};
+            var span = $(this.element).next('.tooltip');
+            span.tooltip(opts).tooltip('show');
+            setTimeout(function () {
+                span.tooltip('hide').remove();
+            }, this.cfg.tooltip.removeTime);
+        }
     }
 };
 
