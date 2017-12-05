@@ -18,8 +18,8 @@ function AjaxRequest(e, cfg, callBack) {
 
     var deffered = $.ajax({
         url: handler.url,
-        type: "POST",
-        dataType: "json",
+        type: handler.cfg.ajax.type,
+        dataType: handler.cfg.ajax.dataType,
         data: handler.form,
         beforeSend: function(data) {}
     });
@@ -50,6 +50,7 @@ function AjaxResponse(element, data) {
     this.form = {};
     this.resp = {};
     this.cfg = {
+        ajax: {type:'POST', dataType:'json'},
         progress: {css: '', hidden: false},
         response: {css:'response', statusCss:'text-success', hidden: false},
         modal: {id:'sar-simple', innerSelector:'.modal-body'},
@@ -159,7 +160,7 @@ AjaxResponse.prototype.loader = function(){
         this.progress = $(this.element).find('.progress');
         this.element.find('.'+this.cfg.response.css).remove();
         if(this.cfg.progress.hidden === true){
-            this.progress.removeAttr('class');
+            this.progress.removeAttr('class').addClass(this.cfg.response.css).html('');
         }
     }else{
         var html = this.element.html();
@@ -170,9 +171,6 @@ AjaxResponse.prototype.loader = function(){
 };
 
 AjaxResponse.prototype.unloader = function(){
-    if(this.cfg.response.hidden === true){
-        // this.resp.text = '';
-    }
 
     if(!this.resp.text && !this.resp.errors){
         this.resp.errors = ['Unknown error'];

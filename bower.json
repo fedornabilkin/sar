@@ -1,6 +1,6 @@
 {
   "name": "simple-ajax-requests",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "main": "dist/sar.js",
   "ignore": [
     ".gitignore",

@@ -12,10 +12,7 @@ $(document).ready(function (){
         AjaxRequest($(this));
     });
     $('input[data-request="ajax"]').on('blur', function () {
-        var cfg = {
-            tooltip:{removeTime:5000},
-            response: {hidden:true}
-        };
+        var cfg = {response: {hidden:true}};
         AjaxRequest($(this), cfg, spanCallBack);
         function spanCallBack(e){
             console.log(e);

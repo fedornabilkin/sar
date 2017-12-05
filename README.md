@@ -1,14 +1,18 @@
 # SAR &mdash; simple ajax requests
 Simple ajax requests - это простая работа с ajax запросами.
-Скрипт позволяет быстро настроить элемент на странице для отправки данных на сервер, используя асинхронную передачу.
+**SAR** позволяет быстро настроить элемент на странице для отправки данных на сервер, используя асинхронную передачу.
 
 ## Быстрый старт
 Устанавливаем пакет с помощью **bower**
 ```bash
 bower install simple-ajax-requests
 ```
+Установка с помощью **composer**
+```bash
+php composer.phar require bower-asset/simple-ajax-requests
+```
 
-## HTML
+## HTML (не менее быстрый)
 Вариант использования при отправке формы
 ```html
 <form action="/test.php" data-request="ajax">
@@ -36,13 +40,7 @@ $('form[data-request="ajax"]').on('submit', function () {
 ```
 ```js
 $('a[data-request="ajax"]').on('click', function () {
-    var cfg = {
-        modal:{
-            id:'responseModal',
-            innerSelector:'.modal-body'
-        }
-    };
-    AjaxRequest($(this), cfg);
+    AjaxRequest($(this));
     return false;
 });
 ```
@@ -58,22 +56,11 @@ $('input[data-request="ajax"]').on('blur', function () {
 ## AjaxRequest($('selector'), {config:''}, callBack)
 **AjaxRequest** принимает три параметра
 * Ссылку на элемент, который инициировал событие
-* Объект с данными конфигурации
+* <s>Объект с данными конфигурации</s> **В 1.0.0 будет удален**
 * Функцию обратного вызова
 
-По умолчанию доступна обработка тэгов ```<form> <input> <a>```, 
-<s>если понадобится использовать, например, тэг ```<span>```, то
-необходимо</s>
+По умолчанию доступна обработка тэгов ```<form> <input> <a>```
 
-В конфигурации доступны для изменения следующие параметры:
-```js
-var cfg = {
-    progress: {css: '', hidden: false},
-    response: {css:'response', statusCss:'text-success', hidden: false},
-    modal: {id:'sar-simple', innerSelector:'.modal-body'},
-    tooltip: {removeTime:2000}
-};
-``` 
 
 Функция обратного вызова вызывается после получения ответа от сервера.
 В функцию будет передан первым параметром контекст объекта **AjaxResponse**.
@@ -106,15 +93,33 @@ exit($json);
 {"errors":["Первая ошибка", "Вторая ошибка"]}
 ```
 
-## Жизненный цикл
-Перед отправкой данных вызывается **before()**, после получения ответа
-сервера вызывается **after()**.
-В зависимости от элемента, который инициировал событие, **before()** вызовет
-**[elementName]Prepare()**.
-По умолчанию доступны **formPrepare()**, **inputPrepare()**, **aPrepare()**
+## Изменение логики работы, свой обработчик
+**SAR** позволяет переопределить большинство методов, чтобы изменить логику работы.
+Для этого создайте свой обработчик и укажите его с помощью ```data-handler="customSar"```
+в элементе, который инициирует отправку запроса.
+```html
+<a href="test.php" data-request="ajax" data-handler="customSar">Click</a>
+```
+Свой обработчик в обязательном порядке должен наследовать базовый объект
+и принимать два аргумента.
+Самый простой обработчик выглядит следующим образом:
+* наследование
+```js
+// --------- Prototype Response -----------
+function CustomSar(element, data) {
+    AjaxResponse.apply(this, arguments);
+    this.cfg.modal.id = 'sar-simple23';
+}
+CustomSar.prototype = Object.create(AjaxResponse.prototype); // IE
+CustomSar.prototype.constructor = CustomSar;
+```
+* переопределение методов
 
-Если **before()** вернет **true** (по умолчанию), то будет вызван **loader()**
-и данные отправятся на сервер. После получения ответа вызывается **after()**,
-который вызывает **unloader()**, если сервер не вернул ошибки
-в массиве **errors**,  также будет вызван **resetForm()**
-
+```js
+// работа SAR остановится, если before вернет false
+CustomSar.prototype.before = function() {
+    var status = AjaxResponse.prototype.before.apply(this);
+    // put code validate
+    return status;
+};
+```
