@@ -20,8 +20,7 @@ $(document).ready(function (){
     });
     $('form[data-request="ajax"]').on('submit', function () {
         var cfg = {
-            modal:{id:'sar-simple4'},
-            progress: {hidden:true}
+            // modal:{id:'sar-simple2'}
         };
         AjaxRequest($(this), cfg);
         return false;

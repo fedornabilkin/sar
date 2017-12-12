@@ -16,15 +16,50 @@ function AjaxRequest(e, cfg, callBack) {
     }
     handler.loader();
 
-    var deffered = $.ajax({
-        url: handler.url,
-        type: handler.cfg.ajax.type,
-        dataType: handler.cfg.ajax.dataType,
-        data: handler.form,
-        beforeSend: function(data) {}
-    });
+    var cfg_ajax = {url: handler.url};
+    cfg_ajax.type = handler.cfg.ajax.type;
+    cfg_ajax.dataType = handler.cfg.ajax.dataType;
+    cfg_ajax.data = handler.form;
+    cfg_ajax.contentType = false;
+    cfg_ajax.processData = false;
 
-    deffered.done(function (result) {
+    cfg_ajax.beforeSend = function(data) {};
+    cfg_ajax.xhr = function(){
+        var xhr = $.ajaxSettings.xhr();
+        xhr.upload.addEventListener('progress', function (evt) {
+            if (evt.lengthComputable) {
+                var percentComplete = Math.ceil(evt.loaded / evt.total * 100);
+
+                // console.log(handler.progress);
+
+                handler.progress
+                    .find('.progress-bar')
+                    // .val(percentComplete)
+                    .attr({'aria-valuenow': percentComplete, style: 'width:' + percentComplete + '%'})
+                    .text(percentComplete + '%');
+                if (percentComplete === 100) {
+                    handler.progress.addClass('progress-success');
+                }
+            }
+        }, false);
+        return xhr;
+    };
+    // cfg_ajax.success = function(result){
+    //     handler.resp = result;
+    //     handler.after();
+    //     if(typeof callBack === 'function'){
+    //         callBack(handler);
+    //     }
+    // };
+
+    var deferred = $.ajax(cfg_ajax);
+
+
+    // deferred.pipe(null, null, function (progress) {
+    //     console.log(progress);
+    // });
+    //
+    deferred.done(function (result) {
         handler.resp = result;
         handler.after();
         if(typeof callBack === 'function'){
@@ -32,7 +67,7 @@ function AjaxRequest(e, cfg, callBack) {
         }
     });
 
-    deffered.fail(function(result){
+    deferred.fail(function(result){
         handler.resp = result;
         handler.log();
     });
@@ -111,12 +146,24 @@ AjaxResponse.prototype.resetForm = function(){
 };
 
 AjaxResponse.prototype.formPrepare = function(){
+    var formData = new FormData;
     var self = this;
     self.url = self.element.attr('action');
     $.each(this.element.find('[name]'), function(i, item){
-        var name = $(item).attr('name');
-        self.form[name] = $(item).val();
+        var e = $(item);
+        var name = e.attr('name');
+        var type = e.attr('type');
+
+        if(type === 'file'){
+            var files = e.prop('files');
+            for (var index in files) {
+                formData.append('file_' + index, files[index]);
+            }
+        }else{
+            formData.append(name, e.val());
+        }
     });
+    self.form = formData;
     return true;
 };
 
@@ -146,7 +193,7 @@ AjaxResponse.prototype.aPrepare = function(){
 AjaxResponse.prototype.loader = function(){
 
     var str = '<div class="progress">';
-    str += '<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">';
+    str += '<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width:1%">';
     str += '<span class="sr-only">Loading</span>';
     str += '</div>';
     str += '</div>';
@@ -203,15 +250,16 @@ AjaxResponse.prototype.unloader = function(){
 
 AjaxResponse.prototype.showModal = function(){
     var modal = $('#'+this.cfg.modal.id);
-    modal.find(this.cfg.modal.innerSelector).html(this.resp.text).addClass(this.cfg.response.statusCss);
     modal.modal({show: 'true', backdrop: "static"});
+    modal.find(this.cfg.modal.innerSelector).html(this.resp.text).addClass(this.cfg.response.statusCss);
+    this.progress = modal.find('.progress');
 };
 
 AjaxResponse.prototype.getErrors = function(){
     if(this.resp.errors) {
         var errors = [];
         for (var index in this.resp.errors) {
-            errors.push(this.resp.errors[index])
+            errors.push(this.resp.errors[index]);
         }
         this.resp.text = errors.join('. ');
         this.cfg.response.statusCss = 'text-danger';
