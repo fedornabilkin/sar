@@ -3,7 +3,7 @@ $(document).ready(function (){
 
     $('a[data-request="ajax"]').on('click', function () {
         var cfg = {
-            modal:{id:'sar-simple2'}
+            // modal:{id:'sar-simple2'}
         };
         AjaxRequest($(this), cfg);
         return false;
@@ -12,7 +12,9 @@ $(document).ready(function (){
         AjaxRequest($(this));
     });
     $('input[data-request="ajax"]').on('blur', function () {
-        var cfg = {response: {hidden:true}};
+        var cfg = {
+            // response: {hidden:true}
+        };
         AjaxRequest($(this), cfg, spanCallBack);
         function spanCallBack(e){
             console.log(e);

@@ -24,26 +24,29 @@ function AjaxRequest(e, cfg, callBack) {
     cfg_ajax.processData = false;
 
     cfg_ajax.beforeSend = function(data) {};
-    cfg_ajax.xhr = function(){
-        var xhr = $.ajaxSettings.xhr();
-        xhr.upload.addEventListener('progress', function (evt) {
-            if (evt.lengthComputable) {
-                var percentComplete = Math.ceil(evt.loaded / evt.total * 100);
 
-                // console.log(handler.progress);
+    if(handler.progress) {
+        cfg_ajax.xhr = function () {
+            var xhr = $.ajaxSettings.xhr();
+            xhr.upload.addEventListener('progress', function (evt) {
+                if (evt.lengthComputable) {
+                    var percentComplete = Math.ceil(evt.loaded / evt.total * 100);
 
-                handler.progress
-                    .find('.progress-bar')
-                    // .val(percentComplete)
-                    .attr({'aria-valuenow': percentComplete, style: 'width:' + percentComplete + '%'})
-                    .text(percentComplete + '%');
-                if (percentComplete === 100) {
-                    handler.progress.addClass('progress-success');
+                    // console.log(handler.progress);
+
+                    handler.progress
+                        .find('.progress-bar')
+                        // .val(percentComplete)
+                        .attr({'aria-valuenow': percentComplete, style: 'width:' + percentComplete + '%'})
+                        .text(percentComplete + '%');
+                    if (percentComplete === 100) {
+                        handler.progress.addClass('progress-success');
+                    }
                 }
-            }
-        }, false);
-        return xhr;
-    };
+            }, false);
+            return xhr;
+        };
+    }
     // cfg_ajax.success = function(result){
     //     handler.resp = result;
     //     handler.after();
