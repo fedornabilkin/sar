@@ -1,5 +1,4 @@
-;
-function AjaxRequest(e, cfg, callBack) {
+;function AjaxRequest(e, cfg, callBack) {
 
     var data = e.data();
     if (!data.handler) {
@@ -47,21 +46,9 @@ function AjaxRequest(e, cfg, callBack) {
             return xhr;
         };
     }
-    // cfg_ajax.success = function(result){
-    //     handler.resp = result;
-    //     handler.after();
-    //     if(typeof callBack === 'function'){
-    //         callBack(handler);
-    //     }
-    // };
 
     var deferred = $.ajax(cfg_ajax);
 
-
-    // deferred.pipe(null, null, function (progress) {
-    //     console.log(progress);
-    // });
-    //
     deferred.done(function (result) {
         handler.resp = result;
         handler.after();
@@ -214,7 +201,8 @@ AjaxResponse.prototype.loader = function(){
         }
     }else{
         var html = this.element.html();
-        this.element.html('<span class="fa fa-cog fa-spin"></span>').attr({'original-content':html});
+        // this.element.html('<span class="fa fa-cog fa-spin"></span>').attr({'original-content':html});
+        this.element.addClass('sar-progress-shadow').attr({'original-content':html});
     }
 
 
@@ -235,7 +223,8 @@ AjaxResponse.prototype.unloader = function(){
             .removeAttr('class')
             .addClass(this.cfg.response.statusCss +' '+ this.cfg.response.css);
     }else{
-        this.element.html(this.element.attr('original-content'));
+        // this.element.html(this.element.attr('original-content'));
+        this.element.removeClass('sar-progress-shadow');
 
         if(this.cfg.response.hidden === false) {
             this.element.after('<span class="tooltip"></span>');

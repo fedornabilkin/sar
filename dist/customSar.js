@@ -1,5 +1,4 @@
-;
-$(document).ready(function (){
+;$(document).ready(function (){
 
     $('a[data-request="ajax"]').on('click', function () {
         var cfg = {
